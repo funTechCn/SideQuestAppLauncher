@@ -34,6 +34,8 @@ public class SettingsProvider
         //put("hu", "Magyar");
         put("ru", "Русский");
         put("uk", "Українська");
+        put("zh-rCN", "中文");
+
     }};
 
     /** Private static singleton object */

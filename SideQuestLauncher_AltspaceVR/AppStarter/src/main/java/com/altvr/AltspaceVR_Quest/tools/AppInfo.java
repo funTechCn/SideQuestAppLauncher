@@ -5,8 +5,18 @@ import android.content.pm.ApplicationInfo;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Environment;
+import android.text.TextUtils;
 
+import org.jsoup.helper.StringUtil;
+
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Container to hold app informations
@@ -15,6 +25,8 @@ public class AppInfo extends ApplicationInfo
 {
     /** The current context */
     Context mContext;
+    private String iconPath=null;
+    private String namePath=null;
 
     /**
      * @param app App to be hold
@@ -23,6 +35,23 @@ public class AppInfo extends ApplicationInfo
     {
         super(app);
         mContext = context;
+        try {
+            File names = mContext.getExternalFilesDir("names");
+            if (names != null) {
+                namePath = names.getAbsolutePath();
+            } else {
+                names.mkdir();
+            }
+            File icons = mContext.getExternalFilesDir("icons");
+            if (icons != null) {
+                iconPath = icons.getAbsolutePath();
+            }else{
+                icons.mkdir();
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
     }
 
     /**
@@ -30,11 +59,44 @@ public class AppInfo extends ApplicationInfo
      */
     public String getDisplayName()
     {
-        String retVal = this.loadLabel(mContext.getPackageManager()).toString();
+        String retVal = null;
+
+        try
+        {
+            File file=new File(namePath+File.separator+this.packageName+".txt");
+            if(file.isFile() && file.canRead()){
+                InputStream instream = new FileInputStream(file);
+                if (instream != null)
+                {
+                    ArrayList<String> newList=new ArrayList<String>();
+                    InputStreamReader inputreader = new InputStreamReader(instream);
+                    BufferedReader buffreader = new BufferedReader(inputreader);
+                    String line;
+                    //分行读取
+                    while (( line = buffreader.readLine()) != null) {
+                            newList.add(line);
+                    }
+                    instream.close();
+                    if(newList.size()>0) {
+                        retVal = newList.get(0);
+                    }
+                }
+            }
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+
+        if(retVal == null || retVal.equals(""))
+        {
+            retVal = this.loadLabel(mContext.getPackageManager()).toString();
+        }
+
         if(retVal == null || retVal.equals(""))
         {
             retVal = packageName;
         }
+
         return retVal;
     }
 
@@ -47,13 +109,17 @@ public class AppInfo extends ApplicationInfo
         Drawable retVal = null;
         try
         {
-            String icon =new File(mContext .getDataDir()+ File.separator+"icons").getAbsolutePath();
-            File file=new File(icon+File.separator+this.packageName+File.separator+".png");
-            if(file.isFile() && file.canRead()){
-                retVal = new BitmapDrawable(mContext.getResources(),BitmapFactory.decodeFile(file.getAbsolutePath()));
+            File file=new File(iconPath+File.separator+this.packageName+".jpg");
+            if(!file.isFile() || !file.canRead()){
+                file = new File(iconPath + File.separator + this.packageName + ".png");
+            }
+            if (file.isFile() && file.canRead()) {
+                retVal = new BitmapDrawable(mContext.getResources(), BitmapFactory.decodeFile(file.getAbsolutePath()));
             }
         }
-        catch (Exception ignore){ }
+        catch (Exception e){
+            e.printStackTrace();
+        }
         if(retVal==null){
             retVal= this.loadIcon(mContext.getPackageManager());
         }
