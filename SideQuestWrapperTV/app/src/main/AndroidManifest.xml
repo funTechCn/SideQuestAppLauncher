@@ -10,6 +10,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
+        android:launchMode="singleTask"
+        android:resizeableActivity="false"
         tools:ignore="GoogleAppIndexingWarning">
         <meta-data android:name="com.samsung.android.vr.application.mode" android:value="vr_only" />
         <activity android:name="com.sidequest.wrapper.MainActivity">
