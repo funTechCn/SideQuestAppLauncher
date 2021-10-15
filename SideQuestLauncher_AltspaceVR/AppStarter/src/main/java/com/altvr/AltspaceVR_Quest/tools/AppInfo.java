@@ -5,10 +5,6 @@ import android.content.pm.ApplicationInfo;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.os.Environment;
-import android.text.TextUtils;
-
-import org.jsoup.helper.StringUtil;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -16,7 +12,6 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.concurrent.ExecutionException;
 
 /**
  * Container to hold app informations
@@ -76,15 +71,18 @@ public class AppInfo extends ApplicationInfo
                     while (( line = buffreader.readLine()) != null) {
                             newList.add(line);
                     }
-                    instream.close();
                     if(newList.size()>0) {
                         retVal = newList.get(0);
                     }
+                    inputreader.close();
+                    instream.close();
                 }
             }
         }
         catch (Exception e){
             e.printStackTrace();
+        }finally {
+
         }
 
         if(retVal == null || retVal.equals(""))

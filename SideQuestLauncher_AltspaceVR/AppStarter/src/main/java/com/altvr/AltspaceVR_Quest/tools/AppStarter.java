@@ -1,6 +1,7 @@
 package com.altvr.AltspaceVR_Quest.tools;
 
 import android.app.Activity;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -9,10 +10,10 @@ import android.net.Uri;
 import android.provider.Settings;
 import android.util.Log;
 
+import com.altvr.AltspaceVR_Quest.gui.InstalledAppsAdapter;
+
 import java.io.PrintWriter;
 import java.io.StringWriter;
-
-import com.altvr.AltspaceVR_Quest.gui.InstalledAppsAdapter;
 
 /**
  * Provides methods to start apps
@@ -59,7 +60,7 @@ public class AppStarter
      * @param packageName Name of the apps package
      * @param isClickAction Indicates if this method is initiated by a click-action
      */
-    public static void startAppByPackageName(final Activity context, String packageName, Boolean isClickAction, Boolean isStartupAction, Boolean isClearPreviousInstancesForced)
+    public static void startAppByPackageName(final Activity context, String packageName, Boolean isClickAction, Boolean isStartupAction, Boolean isClearPreviousInstancesForced,Boolean isVr)
     {
         try
         {
@@ -68,7 +69,7 @@ public class AppStarter
 
             synchronized (mSyncObj)
             {
-                if (packageName != null && !packageName.equals(""))
+                if (packageName != null && !packageName.equals("") && isVr)
                 {
                     // Prepare the intent
                     final Intent launchIntent = InstalledAppsAdapter.getLaunchableIntentByPackageName(context, packageName);
@@ -80,10 +81,20 @@ public class AppStarter
                         launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         launchIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     }
-
                     // Launch the intent
                     Log.d(AppStarter.class.getName(), "Starting launcher activity of package: " + packageName);
                     context.getApplication().startActivity(launchIntent);
+                }else if(packageName != null && !packageName.equals("") && !isVr){
+                        Intent intent = new Intent(Intent.ACTION_VIEW);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        intent.setComponent(new ComponentName("com.oculus.vrshell", "com.oculus.vrshell.MainActivity"));
+                        intent.setData(Uri.parse("com.oculus.tv"));//com.oculus.vrshell.desktop
+
+                        Intent launchIntent = InstalledAppsAdapter.getLaunchableIntentByPackageName(context, packageName);
+                        intent.putExtra("uri", launchIntent.getComponent().flattenToString());
+                        context.getApplication().startActivity(intent);
+                        System.out.println("Starting launcher activity of 2D package: "+ packageName);
                 }
             }
         }

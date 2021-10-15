@@ -1,5 +1,9 @@
 package com.altvr.AltspaceVR_Quest.gui;
 
+import static com.altvr.AltspaceVR_Quest.gui.AppSettingsOverlayDialog.ActionEnum;
+import static com.altvr.AltspaceVR_Quest.gui.AppSettingsOverlayDialog.OnActionClickedHandler;
+import static com.altvr.AltspaceVR_Quest.gui.AppSettingsOverlayDialog.newInstance;
+
 import android.app.AlertDialog;
 import android.app.FragmentManager;
 import android.content.DialogInterface;
@@ -14,9 +18,6 @@ import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.Toast;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-
 import com.altvr.AltspaceVR_Quest.R;
 import com.altvr.AltspaceVR_Quest.tools.AppInfo;
 import com.altvr.AltspaceVR_Quest.tools.AppStarter;
@@ -24,7 +25,8 @@ import com.altvr.AltspaceVR_Quest.tools.AppStarterUpdater;
 import com.altvr.AltspaceVR_Quest.tools.SettingsProvider;
 import com.altvr.AltspaceVR_Quest.tools.Tools;
 
-import static com.altvr.AltspaceVR_Quest.gui.AppSettingsOverlayDialog.*;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
 /**
  * Launcher main (shows the user apps)
@@ -166,11 +168,21 @@ public class AppActivity extends CustomFragment
                     actAdapter.storeNewPackageOrder();
                 } else
                 {
+                    AppInfo appInfo=(AppInfo) parent.getAdapter().getItem(position);
                     // Get packagename of the app to be started
-                    String packageName = ((AppInfo) parent.getAdapter().getItem(position)).packageName;
+                    String packageName = appInfo.packageName;
 
+//                    String mode=appInfo.metaData.getString("com.samsung.android.vr.application.mode");
+
+                    boolean isVr=true;
+                    if(appInfo.getDisplayName().endsWith("2D")){
+                        isVr=false;
+                    }
+//                    if(TextUtils.isEmpty(mode) || !"vr_only".equalsIgnoreCase(mode)){
+//                        isVr=false;
+//                    }
                     // Now start app
-                    AppStarter.startAppByPackageName(getActivity(), packageName, false, false, false);
+                    AppStarter.startAppByPackageName(getActivity(), packageName, false, false, false,isVr);
                 }
             }
         });
